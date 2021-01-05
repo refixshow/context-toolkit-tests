@@ -1,6 +1,5 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Provider, useCtx} from './store' 
-
 
 // użycie
 function Inner(){
@@ -8,7 +7,9 @@ function Inner(){
   
   return <div>
     <small>{JSON.stringify(state)}</small>
-    <button onClick={()=>{
+    <button 
+    disabled={state.imBusy}
+    onClick={()=>{
     actions.changeValue({
       user:{
         name:`${Math.random()}`
@@ -17,8 +18,6 @@ function Inner(){
     }}>changeState</button>
   </div>
 }
-
-
 
 function App() {
   return (

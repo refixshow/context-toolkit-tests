@@ -31,7 +31,6 @@ const prepareActionsToBinding = <State>(actions: GenericActionsPattern<State>) =
     return binded
 }
 
-
 const bindActionsToDispatch = (unboundActions: GenericActionsUnboundPattern,
     dispatch: Dispatch<GenericAction>) => {
 
@@ -105,7 +104,6 @@ const makeContextStore = <State = GenericState>(name: string, initialState: Stat
     }
 
 }
-
 
 export {
     makeContextStore
