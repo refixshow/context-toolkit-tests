@@ -1,9 +1,9 @@
 import React from 'react';
-import {Provider, useCtx} from './store' 
+import { ExampleProvider, useExampleCtx } from './store' 
 
-// użycie
+// use hook
 function Inner(){
-  const {state, actions} = useCtx()
+  const {state, actions} = useExampleCtx()
   
   return <div>
     <small>{JSON.stringify(state)}</small>
@@ -11,21 +11,23 @@ function Inner(){
     disabled={state.imBusy}
     onClick={()=>{
     actions.changeValue({
-      user:{
-        name:`${Math.random()}`
+      user: {
+        name: `${Math.random()}`
       }
     })
     }}>changeState</button>
   </div>
 }
 
+
+// use provider
 function App() {
   return (
-    <Provider>
+    <ExampleProvider>
       <div className="App">
         <Inner/>
       </div>
-    </Provider>
+    </ExampleProvider>
   );
 }
 

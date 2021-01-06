@@ -4,6 +4,7 @@ import {
     IExampleState
 } from './types'
 
+// actions for reducer 
 const actions: GenericActionsPattern<IExampleState> = {
     changeValue(state, { payload }) {
         return {

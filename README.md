@@ -1,46 +1,139 @@
-# Getting Started with Create React App
+# Getting Started with `react-context-toolkit`
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This lib converts standard React Context Api into redux-toolkit styled abstract wrapper served by hook. To get rid of some boilerplate code. We use this code in small and medium sized projects with success. Feel free to change
 
-## Available Scripts
+## You only need to handle 4 things to prepare ready-to-use react-context-toolkit Store:
 
-In the project directory, you can run:
+#### 1. State
+```javascript
+// your state
+const initialState: IExampleState = {
+  imBusy: true,
+  user: {
+    name: ''
+  }
+// ...
+}
+```
 
-### `yarn start`
+#### 2. Reducer actions
+```javascript
+// your actions
+const reducerActions: GenericActionsPattern<IExampleState> = {
+    changeValue(state, { payload }) {
+        return {
+            ...state,
+            ...payload
+        }
+    },
+    loaded(state) {
+        // to conditionally prevent rerender if not necessary to flow
+        if (!state.imBusy) {
+            return state
+        }
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+        return {
+            ...state,
+            imBusy: false
+        }
+    }
+// ...
+}
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
-### `yarn test`
+#### 3. (optional) on App load logic - onLoad Function
+```javascript
+// your onLoad function
+const onLoad: onLoadFunction = async (contextActions) => {
+  try {
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    // fetch some data here
+    const data = await doSomeFetch()
 
-### `yarn build`
+    // change your store by action here
+    contextActions.changeValue({ imBusy: false, ...data })
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    // or do nothing
+  } catch (error) {
+    contextActions.changeValue({
+      imBusy: false, error: {
+        message: error.message
+      }
+    })
+    throw new Error('onLoad - appStoreCtx ' + error.message)
+  }
+}
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### 4. Builder function for create provider and hook
+```javascript
+// your store file
+import makeContextStore from '../lib'
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+const {
+    Provider, useCtx
+} = makeContextStore('ExampleStore', initialState, reducerActions, onLoad)
 
-### `yarn eject`
+const ExampleProvider = Provider
+const useExampleCtx = useCtx
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+export {
+    ExampleProvider, useExampleCtx
+}
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## You have only 2 steps to implement:
+#### 1. Implement Provider
+```javascript
+// your example context hook provider
+import { ExampleProvider } from './store' 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+function App() {
+  return (
+    <ExampleProvider>
+      <div className="App">
+        <Inner />
+        {/* some components */}
+      </div>
+    </ExampleProvider>
+  );
+}
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+#### 2. Implement hook
+```javascript
+// your example context hook
+import { useExampleCtx } from './store' 
 
-## Learn More
+function Inner(){
+  const { state, actions } = useExampleCtx()
+  
+  return <div>
+    <small>{JSON.stringify(state)}</small>
+    <button 
+    disabled={state.imBusy}
+    onClick={()=>{
+        actions.changeValue({
+            user: {
+                name: `${Math.random()}`
+            }
+        })
+    }}>changeState</button>
+  </div>
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## To see source code (+/- 150 lines):
+```javascript
+// src/lib/creator
+// src/lib/types.d
+```
+
+
+## Todos:
+```javascript
+// - automatic tests for use cases
+// - better TS support
+```
