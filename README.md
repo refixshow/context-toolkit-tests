@@ -1,6 +1,12 @@
 # Getting Started with `react-context-toolkit`
 
-This lib converts standard React Context Api into redux-toolkit styled abstract wrapper served by hook. To get rid of some boilerplate code. We use this code in small and medium sized projects with success. Feel free to change
+This lib converts standard React Context Api into redux-toolkit styled abstract wrapper served by hook. To get rid of some boilerplate code and redux from our apps. We're using this code in small and medium sized projects with success. Feel free to use and change
+
+## To see source code (+/- 150 lines):
+```javascript
+// src/lib/creator
+// src/lib/types.d
+```
 
 ## You only need to handle 4 things to prepare ready-to-use react-context-toolkit Store:
 
@@ -127,11 +133,7 @@ function Inner(){
 ```
 
 
-## To see source code (+/- 150 lines):
-```javascript
-// src/lib/creator
-// src/lib/types.d
-```
+
 
 
 ## Todos:
