@@ -86,7 +86,7 @@ export {
 ## You have only 2 steps to implement:
 #### 1. Implement Provider
 ```javascript
-// your example context hook provider
+// your example context provider
 import { ExampleProvider } from './store' 
 
 function App() {
@@ -109,18 +109,20 @@ import { useExampleCtx } from './store'
 function Inner(){
   const { state, actions } = useExampleCtx()
   
-  return <div>
+  return (<div>
     <small>{JSON.stringify(state)}</small>
     <button 
     disabled={state.imBusy}
     onClick={()=>{
+        // generic usage:
+        // actions.actionName(payload)
         actions.changeValue({
             user: {
                 name: `${Math.random()}`
             }
         })
     }}>changeState</button>
-  </div>
+  </div>)
 }
 ```
 
