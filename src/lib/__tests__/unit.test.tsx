@@ -3,6 +3,9 @@
 // import {} from "../../store";
 
 // utils import
+import { act } from "react-test-renderer";
+import { renderHook } from "@testing-library/react-hooks";
+
 import {
   prepareActionsToBinding,
   bindActionsToDispatch,
@@ -13,6 +16,7 @@ import actions from "../../store/actions";
 
 // types inport
 import { GenericPayload, GenericAction, GenericState } from "../types";
+import { useReducer } from "react";
 
 // TO DO
 // test names
@@ -66,44 +70,24 @@ describe("unit testing", () => {
   describe("testing createReducerForActions", () => {
     test("should create reducer for actions", () => {
       const mockedFc = createReducerForActions;
-      const mockedTestActionName = "mockedAction";
+      const preparedActionsToBind = prepareActionsToBinding(mockedActions);
+      const preparedReducer = mockedFc(mockedActions);
 
-      const mockedTestAction = (
-        state: GenericState,
-        { payload }: GenericPayload
-      ) => {
-        mockedInitialState = {
-          imBusy: state.imBusy,
-          user: {
-            ...state.user,
-            ...payload,
-          },
-        };
+      const { result } = renderHook(() =>
+        useReducer(preparedReducer, mockedInitialState)
+      );
 
-        // just to match types
-        return {
-          ...state,
-          ...payload,
-        };
-      };
-
-      const mockedTestActions = { [mockedTestActionName]: mockedTestAction };
-      const preparedActionsToBind = prepareActionsToBinding(mockedTestActions);
-
-      const preparedReducer = mockedFc(mockedTestActions);
-
-      const dispatch = (action: GenericAction) => {
-        preparedReducer(mockedInitialState, action);
-      };
+      const [store, dispatch] = result.current;
 
       const mockedBindedActions = bindActionsToDispatch(
         preparedActionsToBind,
         dispatch
       );
 
-      mockedBindedActions[mockedTestActionName](mockedPayload);
-
-      expect(mockedInitialState.user).toStrictEqual(mockedPayload);
+      act(() => {
+        mockedBindedActions[mockedActionName](mockedPayload);
+        expect(store.user).toStrictEqual(mockedPayload);
+      });
     });
 
     // TO DO
