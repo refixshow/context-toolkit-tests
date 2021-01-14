@@ -1,40 +1,38 @@
-import { GenericActionsPattern } from '../lib/types'
+import { GenericActionsPattern } from "../lib/types";
 
-import {
-    IExampleState
-} from './types'
+import { IExampleState } from "./types";
 
-// actions for reducer 
+// actions for reducer
 const actions: GenericActionsPattern<IExampleState> = {
-    changeValue(state, { payload }) {
-        return {
-            ...state,
-            ...payload
-        }
-    },
-    loaded(state) {
-        // to conditionally prevent rerender if not necessary to flow
-        if (!state.imBusy) {
-            return state
-        }
+  changeValue(state, { payload }) {
+    return {
+      ...state,
+      ...payload,
+    };
+  },
+  loaded(state) {
+    // to conditionally prevent rerender if un necessary to flow
+    if (!state.imBusy) {
+      return state;
+    }
 
-        return {
-            ...state,
-            imBusy: false
-        }
-    },
+    return {
+      ...state,
+      imBusy: false,
+    };
+  },
 
-    loading(state) {
-        // to conditionally prevent rerender if not necessary to flow
-        if (state.imBusy) {
-            return state
-        }
+  loading(state) {
+    // to conditionally prevent rerender if not necessary to flow
+    if (state.imBusy) {
+      return state;
+    }
 
-        return {
-            ...state,
-            imBusy: true
-        }
-    },
-}
+    return {
+      ...state,
+      imBusy: true,
+    };
+  },
+};
 
-export default actions
+export default actions;

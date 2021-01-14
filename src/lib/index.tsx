@@ -1,2 +1,2 @@
-import { makeContextStore } from './creator'
-export default makeContextStore
+import { makeContextStore } from "./creator";
+export default makeContextStore;
