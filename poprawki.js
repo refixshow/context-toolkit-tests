@@ -1,2 +1,0 @@
-// NO DEFAULT
-// creator > createReducerForActions
