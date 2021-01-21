@@ -4,7 +4,6 @@ import React, {
   useReducer,
   useEffect,
   useContext,
-  useRef,
 } from "react";
 
 import {

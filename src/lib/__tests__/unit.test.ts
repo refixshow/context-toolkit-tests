@@ -1,38 +1,29 @@
-// index inport
-// import {} from "..";
-// import {} from "../../store";
-
-// utils import
-import { act } from "react-test-renderer";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react-hooks";
 
 import {
   prepareActionsToBinding,
   bindActionsToDispatch,
   createReducerForActions,
+  makeContextStore,
 } from "../creator";
 import { initialState } from "../../store/state";
 import actions from "../../store/actions";
 
-// types inport
-import { GenericPayload, GenericAction, GenericState } from "../types";
+import { GenericPayload, GenericAction } from "../types";
 import { useReducer } from "react";
 
-// TO DO
-// test names
-
 describe("unit testing", () => {
-  const mockedActions = actions;
-  let mockedInitialState = initialState;
   const mockedActionName = "changeValue";
   const mockedPayload = {
-    name: "testName",
+    user: {
+      name: "testName",
+    },
   };
 
   describe("testing prepareActionsToBinding", () => {
     test("should prepare actions to be bainded", () => {
       const mockedFc = prepareActionsToBinding;
-      const preparedActions = mockedFc(mockedActions);
+      const preparedActions = mockedFc(actions);
 
       let mockedOutput: GenericPayload = {};
       const mockedReducer = (action: GenericAction) => (mockedOutput = action);
@@ -44,13 +35,13 @@ describe("unit testing", () => {
 
       const expected = { type: mockedActionName, payload: mockedPayload };
 
-      expect(expected).toStrictEqual(mockedOutput);
+      expect(mockedOutput).toStrictEqual(expected);
     });
   });
 
   describe("testing bindActionsToDispatch", () => {
     test("should bind actions to dispatch", () => {
-      const preparedActions = prepareActionsToBinding(mockedActions);
+      const preparedActions = prepareActionsToBinding(actions);
       const mockedFc = bindActionsToDispatch;
 
       let output: GenericPayload = {};
@@ -63,36 +54,37 @@ describe("unit testing", () => {
 
       const expected = { type: mockedActionName, payload: mockedPayload };
 
-      expect(expected).toStrictEqual(output);
+      expect(output).toStrictEqual(expected);
     });
   });
 
   describe("testing createReducerForActions", () => {
     test("should create reducer for actions", () => {
       const mockedFc = createReducerForActions;
-      const preparedActionsToBind = prepareActionsToBinding(mockedActions);
-      const preparedReducer = mockedFc(mockedActions);
+      const preparedActionsToBind = prepareActionsToBinding(actions);
+      const preparedReducer = mockedFc(actions);
 
+      // result.current
+      // [0] ---->  state;
+      // [1] ---->  dispatch;
       const { result } = renderHook(() =>
-        useReducer(preparedReducer, mockedInitialState)
+        useReducer(preparedReducer, initialState)
       );
-
-      const [store, dispatch] = result.current;
 
       const mockedBindedActions = bindActionsToDispatch(
         preparedActionsToBind,
-        dispatch
+        result.current[1]
       );
 
       act(() => {
+        // action call
         mockedBindedActions[mockedActionName](mockedPayload);
-        expect(store.user).toStrictEqual(mockedPayload);
       });
+
+      expect(result.current[0].user).toStrictEqual(mockedPayload.user);
     });
 
-    // TO DO
-    // title
-    test("should throw when action.type doesn't exist", () => {
+    test("should throw an error when type of action doesn't exist", () => {
       const mockedFc = createReducerForActions;
       const mockedBadActions = {};
 
@@ -102,15 +94,35 @@ describe("unit testing", () => {
     });
   });
 
-  describe("testing makeContextStore", () => {
-    test("should work", () => {
-      expect(true).toBeTruthy();
+  describe("testing getInitialState", () => {
+    // test("should bind actions to dispatch", () => {
+    //   const preparedActions = prepareActionsToBinding(actions);
+    //   const mockedFc = bindActionsToDispatch;
+    //   let output: GenericPayload = {};
+    //   const mockedReducer = (action: GenericAction) => (output = action);
+    //   const mockedDispatch = (action: GenericAction) => mockedReducer(action);
+    //   const baindedActions = mockedFc(preparedActions, mockedDispatch);
+    //   baindedActions[mockedActionName](mockedPayload);
+    //   const expected = { type: mockedActionName, payload: mockedPayload };
+    //   expect(output).toStrictEqual(expected);
+    // });
+  });
 
-      // input <---    string, State, GenericActionsPattern<State>, onLoad
-      // LoadFunction, boolean;
-      // output --->   useCtx, Provider
-      // act, render hook --> useCtx
-      // Store -> Provider
+  describe("testing makeContextStore", () => {
+    test("should check initial value of store on unmounted provider", () => {
+      const mockedFc = makeContextStore;
+      const mockedContextName = "testName";
+      const onLoadSpy = jest.fn();
+
+      const mockedResult = renderHook(() =>
+        mockedFc(mockedContextName, initialState, actions, onLoadSpy)
+      );
+
+      const { result } = renderHook(() => mockedResult.result.current.useCtx());
+
+      expect(result.current.state).toStrictEqual(initialState);
+      expect(onLoadSpy).not.toBeCalled();
+      expect(result.current.actions).toStrictEqual({});
     });
   });
 });
